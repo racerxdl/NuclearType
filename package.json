@@ -1,6 +1,6 @@
 {
-  "name": "nuclear",
-  "version": "1.0.0",
+  "name": "nucleartype",
+  "version": "0.0.1",
   "description": "Nuclear Reaction for Javascript - Decorations for auto-generation of GraphQL and Sequelize models",
   "main": "dist/index.js",
   "scripts": {
