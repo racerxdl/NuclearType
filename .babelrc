@@ -1,0 +1,6 @@
+{
+  "plugins": [
+    "transform-decorators-legacy", "typecheck", "syntax-flow", "transform-flow-strip-types"
+  ],
+  "presets": ["env", "stage-1"]
+}
