@@ -12,13 +12,16 @@ import {
   IntegerType,
 } from './types/NuclearType';
 
-@NuclearModel
+@NuclearModel()
 class MyClass {
-  @NuclearField({ type: StringType })
+  @NuclearField({ type: StringType, nullable: false })
   field;
 
   @NuclearField({ type: IntegerType })
   field2;
+
+  @NuclearField({ type: IntegerType })
+  field3 = () => 3;
 
   constructor() {
     console.log('Constructor');
@@ -27,6 +30,18 @@ class MyClass {
   @NuclearInit
   myInit() {
     console.log('My Init');
+  }
+}
+
+
+@NuclearModel()
+class MyClass2 {
+  @NuclearField({ type: MyClass, nullable: false })
+  field;
+
+  @NuclearInit
+  myInit() {
+    console.log('My Init 2');
   }
 }
 

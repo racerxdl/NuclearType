@@ -101,7 +101,7 @@ export class IntegerType extends NumberType {
    * Integer Type
    * @param length Length in bits of the integer
    */
-  constructor(length) {
+  constructor(length = 32) {
     let graphQLType = GraphQLInt;
     let sequelizeType = DataTypes.INTEGER;
     switch (length) {
