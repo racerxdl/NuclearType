@@ -2,6 +2,7 @@
  * Created by Lucas Teske on 08/03/18.
  * @flow
  */
+import { printSchema, GraphQLSchema } from 'graphql';
 import {
   NuclearModel,
   NuclearField,
@@ -12,24 +13,24 @@ import {
   IntegerType,
 } from './types/NuclearType';
 
-@NuclearModel()
+@NuclearModel({ name: 'HUEBRClass' })
 class MyClass {
   @NuclearField({ type: StringType, nullable: false })
   field;
 
-  @NuclearField({ type: IntegerType })
+  @NuclearField({ type: IntegerType, graphqlDescription: 'HUEBR' })
   field2;
 
   @NuclearField({ type: IntegerType })
   field3 = () => 3;
 
   constructor() {
-    console.log('Constructor');
+    // console.log('Constructor');
   }
 
   @NuclearInit
-  myInit() {
-    console.log('My Init');
+  myInit(x) {
+    // HUEHR
   }
 }
 
@@ -45,7 +46,18 @@ class MyClass2 {
   }
 }
 
-
 const x = new MyClass();
+/*
+console.debug(MyClass.____graphQL);
 
-console.log(JSON.stringify(x));
+console.debug(x.GraphQL);
+*/
+const schema = new GraphQLSchema({
+  query: MyClass.GraphQL,
+});
+
+console.log(MyClass.Sequelize);
+
+console.log(printSchema(schema));
+
+// console.log(JSON.stringify(x));

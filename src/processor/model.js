@@ -15,6 +15,7 @@ import { AbstractType } from '../types/NuclearType';
 
 const buildModel = (target) => {
   // region Output GraphQL
+
   const graphQLOutputFields = {
     gid: globalIdField(target.___graphQL.name),
   };
@@ -79,8 +80,8 @@ const buildModel = (target) => {
     fields: () => graphQLInputFields,
   };
 
-  console.log('Output', JSON.stringify(graphQLOutput.fields(), null, 2));
-  console.log('Input', JSON.stringify(graphQLInput.fields(), null, 2));
+  // console.log('Output', JSON.stringify(graphQLOutput.fields(), null, 2));
+  // console.log('Input', JSON.stringify(graphQLInput.fields(), null, 2));
 
   target.GraphQL = new GraphQLObjectType(graphQLOutput);
   target.GraphQLInput = new GraphQLInputObjectType(graphQLInput);
@@ -94,16 +95,29 @@ export const NuclearModel = ({ name = null, description = null } = { name: null,
   w[target.name] = class extends target {
       static ___nuclearModel = true;
 
-      static ___graphQL = {
+      static ____graphQL = {
         name: name || target.name,
         description: description || `Auto Generated Class ${target.name}`,
       };
 
+      static get GraphQL() {
+        return (new this({___internalConstruct: true})).GraphQL;
+      }
+
+      static get Sequelize() {
+        return (new this({___internalConstruct: true})).Sequelize;
+      }
+
       constructor(...args) {
         super();
+        this.___graphQL = {
+          name: name || target.name,
+          description: description || `Auto Generated Class ${target.name}`,
+        };
         buildModel(this);
-        if (typeof this.__nuclearInit === 'function') {
-          this.__nuclearInit(args);
+        const { ___internalConstruct } = args[0] || {};
+        if (typeof this.__nuclearInit === 'function' && !___internalConstruct) {
+          this.__nuclearInit(...args);
         }
       }
   };
@@ -120,7 +134,7 @@ export const NuclearInit = (target, key, descriptor) => {
 export const NuclearField = ({
   type, data, nullable = true, graphqlDescription,
 }) => (target, key, descriptor) => {
-  if (!(type.prototype instanceof AbstractType) && !type.___nuclearModel) {
+  if (!(type.prototype instanceof AbstractType) && !(type instanceof AbstractType) && !type.___nuclearModel) {
     throw new Error(`Class '${type.name}' specified in field 'type' does not extends AbstractType`);
   }
   descriptor.configurable = true;
