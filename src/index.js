@@ -43,7 +43,7 @@ class MyClass {
 }
 
 
-@NuclearModel()
+@NuclearModel({ sequelize })
 class MyClass2 {
   @NuclearField({ type: MyClass, nullable: false })
   field;
@@ -67,11 +67,19 @@ console.log(printSchema(schema));
 // console.log(JSON.stringify(x));
 
 MyClass.Sequelize.sync().then(() => {
+  return MyClass2.Sequelize.sync();
+}).then(() => {
   return MyClass.Sequelize.create({
     field: 'huebr',
     field2: 1234,
-  })
+  });
 }).then((data) => {
   console.log(data);
   console.log(data.field);
+
+  return MyClass2.Sequelize.create({
+    field: data.id,
+  });
+}).then((data) => {
+  console.log(data);
 });

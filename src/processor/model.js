@@ -9,6 +9,8 @@ import {
   GraphQLNonNull,
 } from 'graphql';
 
+import Sequelize from 'sequelize';
+
 import { globalIdField } from 'graphql-relay';
 
 import { AbstractType } from '../types/NuclearType';
@@ -102,11 +104,25 @@ const buildSequelizeModel = (target) => {
       baseType = fieldData.type;
     }
     // endregion
+    if (baseType._sequelizeType !== null && baseType._sequelizeType !== undefined) {
+      const type = baseType._sequelizeType;
 
-    seqDef[k] = {
-      type: baseType._sequelizeType,
-      allowNull: fieldData.nullable,
-    };
+      seqDef[k] = {
+        type,
+        allowNull: fieldData.nullable,
+      };
+    } else {
+      const type = baseType.Sequelize;
+
+      seqDef[k] = {
+        type: Sequelize.INTEGER,
+        allowNull: fieldData.nullable,
+        references: {
+          model: type,
+          key: 'id',
+        },
+      };
+    }
   });
 
   target.__nuclearSequelizePreInit = seqDef;
@@ -140,6 +156,11 @@ export const NuclearModel = ({ name = null, description = null, sequelize = null
 
       static get GraphQL() {
         return (new this({___internalConstruct: true})).GraphQL;
+      }
+
+
+      static get GraphQLInput() {
+        return (new this({___internalConstruct: true})).GraphQLInput;
       }
 
       static get Sequelize() {
