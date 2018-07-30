@@ -3,6 +3,7 @@
  * @flow
  */
 import { printSchema, GraphQLSchema } from 'graphql';
+import Sequelize from 'sequelize';
 import {
   NuclearModel,
   NuclearField,
@@ -13,7 +14,14 @@ import {
   IntegerType,
 } from './types/NuclearType';
 
-@NuclearModel({ name: 'HUEBRClass' })
+const sequelize = new Sequelize('main', 'root', null, {
+  host: 'localhost',
+  port: 26257,
+  dialect: 'postgres',
+});
+
+
+@NuclearModel({ name: 'HUEBRClass', version: 1, sequelize })
 class MyClass {
   @NuclearField({ type: StringType, nullable: false })
   field;
@@ -47,11 +55,7 @@ class MyClass2 {
 }
 
 const x = new MyClass();
-/*
-console.debug(MyClass.____graphQL);
 
-console.debug(x.GraphQL);
-*/
 const schema = new GraphQLSchema({
   query: MyClass.GraphQL,
 });
@@ -61,3 +65,13 @@ console.log(MyClass.Sequelize);
 console.log(printSchema(schema));
 
 // console.log(JSON.stringify(x));
+
+MyClass.Sequelize.sync().then(() => {
+  return MyClass.Sequelize.create({
+    field: 'huebr',
+    field2: 1234,
+  })
+}).then((data) => {
+  console.log(data);
+  console.log(data.field);
+});

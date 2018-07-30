@@ -13,7 +13,7 @@ import { globalIdField } from 'graphql-relay';
 
 import { AbstractType } from '../types/NuclearType';
 
-const buildModel = (target) => {
+const buildGraphQLModel = (target) => {
   // region Output GraphQL
 
   const graphQLOutputFields = {
@@ -87,7 +87,45 @@ const buildModel = (target) => {
   target.GraphQLInput = new GraphQLInputObjectType(graphQLInput);
 };
 
-export const NuclearModel = ({ name = null, description = null } = { name: null, description: null }) => (target) => {
+const buildSequelizeModel = (target) => {
+  const seqDef = {};
+
+  Object.keys(target.__nuclearFields).forEach((k) => {
+    const fieldData = target.__nuclearFields[k];
+    let baseType;
+
+    // region Resolve Base Type
+    if (fieldData.type.prototype instanceof AbstractType) {
+      const Type = fieldData.type;
+      baseType = new Type();
+    } else {
+      baseType = fieldData.type;
+    }
+    // endregion
+
+    seqDef[k] = {
+      type: baseType._sequelizeType,
+      allowNull: fieldData.nullable,
+    };
+  });
+
+  target.__nuclearSequelizePreInit = seqDef;
+};
+
+const initSequelize = (target, sequelize) => {
+  target.Sequelize = sequelize.define(target.name, target.__nuclearSequelizePreInit);
+};
+
+const buildModel = (target, sequelize) => {
+  buildGraphQLModel(target);
+  buildSequelizeModel(target);
+
+  if (sequelize !== null) {
+    initSequelize(target, sequelize);
+  }
+};
+
+export const NuclearModel = ({ name = null, description = null, sequelize = null } = { name: null, description: null, sequelize: null }) => (target) => {
   const w = {};
   if (!target) {
     throw new Error('Please use @NuclearModel() instead of @NuclearModel');
@@ -108,13 +146,21 @@ export const NuclearModel = ({ name = null, description = null } = { name: null,
         return (new this({___internalConstruct: true})).Sequelize;
       }
 
+      InitSequelize(sequelize) {
+        if (this.Sequelize !== null || this.Sequelize === undefined) {
+          initSequelize(this, sequelize);
+        } else {
+          throw new Error('Sequelize already initialized in this model!');
+        }
+      }
+
       constructor(...args) {
         super();
         this.___graphQL = {
           name: name || target.name,
           description: description || `Auto Generated Class ${target.name}`,
         };
-        buildModel(this);
+        buildModel(this, sequelize);
         const { ___internalConstruct } = args[0] || {};
         if (typeof this.__nuclearInit === 'function' && !___internalConstruct) {
           this.__nuclearInit(...args);
