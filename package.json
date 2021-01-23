@@ -11,7 +11,7 @@
   "dependencies": {
     "graphql": "^0.13.1",
     "graphql-relay": "^0.5.4",
-    "sequelize": "^4.35.2"
+    "sequelize": "^5.15.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
